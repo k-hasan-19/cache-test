@@ -14,9 +14,13 @@ RUN apk add \
     geos proj gdal-dev binutils
 
 RUN ln -sf /usr/lib/libgeos_c.so.1 /usr/lib/libgeos_c.so
+
 RUN apk add libffi-dev
+
 COPY requirements.txt .
-RUN pip install -r requirements.txt && \
-    pip install gdal==3.4.3
+
+RUN pip install -r requirements.txt
+
+RUN pip install gdal==3.4.3
 
 COPY . .
