@@ -4,7 +4,7 @@ on:
     branches: 
       - debug/docker-cache
 jobs:
-  Development-Deploy:
+  Debug-Deploy:
     permissions:
         id-token: write
         contents: read
@@ -14,8 +14,8 @@ jobs:
       - name: Configure OpenID Connect
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::363179374584:role/bookingly-dev-backend-oidc-debug-role
-          aws-region: ${{ secrets.AWS_DEV_REGION }}
+          role-to-assume: arn:aws:iam::363179374584:role/github-test-oidc-debug-role
+          aws-region: "eu-central-1"
 
       - name: Check out code
         uses: actions/checkout@v3
@@ -27,15 +27,12 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Pull image
-        run:  |
-          docker pull 363179374584.dkr.ecr.eu-central-1.amazonaws.com/bookingly-dev-backend:latest
       
       - name: Get Tags for Image
         id: metadata
         uses: docker/metadata-action@v3
         with:
-          images: "${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_DEV_REPOSITORY }}"
+          images: "${{ steps.login-ecr.outputs.registry }}/cache-test"
           tags: |
             type=raw,value=latest
             type=raw,value=main
@@ -43,15 +40,11 @@ jobs:
       -
         name: Build, tag, and push docker image to Amazon ECR
         uses: docker/build-push-action@v3
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ secrets.ECR_DEV_REPOSITORY }}
         with:
           context: .
           file: Dockerfile.dev
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
-          build-contexts: booking="docker-image://363179374584.dkr.ecr.eu-central-1.amazonaws.com/bookingly-dev-backend:latest"
           cache-from: type=gha
           cache-to: type=gha,mode=max
 #       - name: Build, tag, and push docker image to Amazon ECR
