@@ -42,7 +42,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: Dockerfile.dev
           push: true
           tags: ${{ steps.metadata.outputs.tags }}
           cache-from: type=gha
